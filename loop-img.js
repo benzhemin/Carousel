@@ -32,7 +32,7 @@ $(function(){
             return dtd.promise();   
         }
 
-        $.when(animateImg($curImg, 500), animateImg($nextImg, 500)).done(function(){
+        $.when(animateImg($curImg, 300), animateImg($nextImg, 300)).done(function(){
             curIndex = next;
             blockEvent = false;
         });
@@ -52,3 +52,82 @@ $(function(){
     }, 1000)
     */
 });
+
+$(function(){
+
+    var deferrd = $.Deferred();
+    deferrd.done(function(a, b){
+        return a*b;
+    }).done(function(result){
+        console.log('result: ' + result);
+    }).then(function(a, b){
+        return a * b;
+    }).done(function(result){
+        console.log('result: ' + result);
+    });
+
+    deferrd.resolve(2, 3);
+
+});
+
+
+$(function(){
+    function asyncEvent(){
+        var dfd = $.Deferred();
+
+        setTimeout(function(){
+            dfd.resolve('hurray');
+        }, Math.floor(1000 + Math.random() * 2000));
+
+        setTimeout(function(){
+            dfd.reject('sorry');
+        }, Math.floor(1000 + Math.random() * 2000));
+        
+        var count = 0;
+        var intervalId = setInterval(function() {
+            dfd.notify('working....');
+            count++; 
+            count>5 && clearInterval(intervalId);
+        }, 100);
+
+        return dfd.promise();
+    }
+
+    /*
+    //progress 不接受when的回调
+    $.when(asyncEvent()).then(function(status){
+        console.log(status + ', things are going well');
+    }, function(status){
+        console.log(status + ' you fail this time');
+    }, function(status){
+        console.log(status + ' progress---------------');
+    })
+    */
+
+    asyncEvent().then(function(status){
+        console.log(status + ', things are going well');
+    }, function(status){
+        console.log(status + ' you fail this time');
+    }, function(prog){
+        console.log('progress: ' + prog);
+    })
+
+    /*
+    function doSomething() {   
+        var dfd = $.Deferred();
+    
+        var count = 0;
+        var intervalId = setInterval(function() {
+            dfd.notify(count++);
+        }, 500);
+    
+        return dfd.promise();
+    };
+    
+    var promise = doSomething();
+    
+    promise.progress(function(prog) {
+      console.log(prog);
+    });
+    */
+})
